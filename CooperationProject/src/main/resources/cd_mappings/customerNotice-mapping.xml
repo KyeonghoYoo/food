@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cd_CustomerNoitce">
+
+	<select id="getCustomerNoticeList" resultType="hashmap">
+		<![CDATA[
+		select distinct id, title, DATE_FORMAT(regDate, '%Y-%m-%d') as "regDate"
+		from tbcustomernotice
+		where date(now()) <= date(EdnDate) and date(now()) >= date(StartDate)
+		order by date(startDate) desc
+		]]>
+	</select>
+	
+	<select id="getCustomerNotice" parameterType="string" resultType="cd_customerNotice">
+		select id, title, DATE_FORMAT(regDate, '%Y-%m-%d') as "regDate", content
+		from tbcustomernotice
+		where id = #{id}
+	</select>
+</mapper>

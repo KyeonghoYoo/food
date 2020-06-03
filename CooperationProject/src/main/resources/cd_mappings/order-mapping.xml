@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cd_Order">
+
+	<insert id="insertOrder">
+		insert into tborder
+		values(
+		CONCAT(#{tbcustomer_id}, date_format(now(), '%m%d%Y'), (SELECT LPAD(COUNT(*)+1,2,'0') FROM tbcustomer a, tborder b
+		WHERE a.id = b.tbCustomer_ID 
+		and b.tbCustomer_ID = #{tbcustomer_id}
+		and b.OrderDate = date_format(now(), '%Y-%m-%d'))), 
+		#{tbcustomer_id},
+		#{orderdate},
+		#{itemcount},
+		#{amount},
+		#{points},
+		#{payment},
+		#{paymethod},
+		#{reqdate},
+		#{requests},
+		#{tbdeliverer_id},
+		#{salespersonid},
+		#{orderstate},
+		#{updatedate},
+		#{address1},
+		#{address2}, 
+		#{address3},
+		#{memo},
+		#{remark1},
+		#{remark2})
+	</insert>
+	<select id="getLatestOrderId" parameterType="string" resultType="cd_order">
+		<![CDATA[
+		select id
+		from tborder
+		where id = (SELECT CONCAT(#{customerId}, date_format(now(), '%m%d%Y'), 
+		(SELECT LPAD(COUNT(*),2,'0') FROM tbcustomer, tborder 
+		WHERE tbcustomer.id = tborder.tbCustomer_ID 
+		and tborder.tbCustomer_ID = #{customerId}
+		and tborder.OrderDate = date_format(now(), '%Y-%m-%d'))))
+		]]>
+	</select>
+	<select id="getOrderList" parameterType="hashmap" resultType="cd_order">
+		<![CDATA[
+		select distinct *
+		from tborder
+		where tbCustomer_ID = #{customerId}
+		and date(orderdate) >= date(subdate(now(), interval #{condition} day))
+		and date(orderdate) <= date(now())
+		and (OrderState != "반품완료" and OrderState != "반품대기")
+		order by orderdate desc
+		]]>
+	</select>
+	
+	<select id="getRefundList" parameterType="hashmap" resultType="cd_order">
+		<![CDATA[
+		select distinct *
+		from tborder
+		where tbCustomer_ID = #{customerId}
+		and date(orderdate) >= date(subdate(now(), interval #{condition} day))
+		and date(orderdate) <= date(now())
+		and (OrderState = "반품완료" or OrderState = "반품대기")
+		order by orderdate desc
+		]]>
+	</select>
+	
+	
+	<select id="getOrderStatistics" parameterType="hashmap" resultType="hashmap">
+		select count(distinct tborder.id) as "total_orderNumber", sum(tboerderitem.amount) as "total_payment", sum(tboerderitem.qty) as "total_quantity"
+		from tborder, tboerderitem
+		where tborder.tbCustomer_ID = #{customerId}
+		and tborder.id = tboerderitem.tborder_ID
+		<choose>
+    	<when test="condition != null and condition.equals('thisMonth')">
+    	<![CDATA[
+      	and date(tborder.orderdate) >= date_format(now(), '%Y-%m-01')
+		and date(tborder.orderdate) <= date(now())
+		]]>
+    	</when>
+    	<when test="condition != null and condition.equals('lastMonth')">
+      	<![CDATA[
+		and YEAR(tborder.orderdate) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)
+		and MONTH(tborder.orderdate) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
+		]]>
+    	</when>
+    	<when test="condition != null and condition.equals('total')">
+    	</when>
+    	<otherwise>
+    	<![CDATA[
+    	and #{startDate} <= tborder.orderdate
+    	and tborder.orderdate <= #{endDate}
+    	]]>
+    	</otherwise>
+  		</choose>
+		and tborder.orderstate = '배송완료'
+	</select>
+	
+	<select id="getOrderItemStatistics" parameterType="hashmap" resultType="hashmap">
+		select distinct tbitem.itemName, tbitem.unit, tbitem.mainProvier, tbitem.origin, sum(tboerderitem.qty) as 'totalQuantity'
+		from tborder, tboerderitem, tbitem
+		where tborder.tbCustomer_ID = #{customerId}
+		and tborder.id = tboerderitem.tborder_ID
+		and tboerderitem.tbItem_ID = tbitem.id
+		<choose>
+    	<when test="condition != null and condition.equals('thisMonth')">
+    	<![CDATA[
+      	and date(tborder.orderdate) >= date_format(now(), '%Y-%m-01')
+		and date(tborder.orderdate) <= date(now())
+		]]>
+    	</when>
+    	<when test="condition != null and condition.equals('lastMonth')">
+      	<![CDATA[
+		and YEAR(tborder.orderdate) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)
+		and MONTH(tborder.orderdate) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)
+		]]>
+    	</when>
+    	<when test="condition != null and condition.equals('total')">
+    	</when>
+    	<otherwise>
+    	<![CDATA[
+    	and #{startDate} <= tborder.orderdate
+    	and tborder.orderdate <= #{endDate}
+    	]]>
+    	</otherwise>
+  		</choose>
+		and tborder.orderstate = '배송완료'
+		group by tbitem.ItemName
+		order by totalQuantity desc, tbitem.ItemName asc 
+	</select>
+	
+	<select id="getDelivererOrderList" parameterType="hashmap" resultType="cd_order">
+		select distinct *
+		from tborder
+		where tbDeliverer_ID = #{delivererId}
+    	<![CDATA[
+		and date(ReqDate) >= date(subdate(now(), interval #{condition} day))
+		and date(ReqDate) <= date(now())
+		]]>
+		and (OrderState != "반품완료" and OrderState != "반품대기")
+		order by id asc
+	</select>
+	
+	<select id="getDelivererRefundList" parameterType="hashmap" resultType="cd_order">
+		select distinct *
+		from tborder
+		where tbDeliverer_ID = #{delivererId}
+    	<![CDATA[
+		and date(ReqDate) >= date(subdate(now(), interval #{condition} day))
+		and date(ReqDate) <= date(now())
+		]]>
+		and (OrderState = "반품완료" or OrderState = "반품대기")
+		order by id asc
+	</select>
+	
+	<update id="updateOrderState" parameterType="hashmap">
+		update tborder
+		SET OrderState = #{orderState},
+			UpdateDate = #{updateDate}
+		where ID = #{orderId}
+	</update>
+	
+	
+	
+	<update id="cancelOrder" parameterType="string">
+		update tborder set OrderState = '주문취소', UpdateDate = date_format(now(), '%Y-%m-%d')
+		where id = #{orderId} and OrderState != '배송중' and OrderState != '배송완료' and OrderState != '주문취소'
+	</update>
+</mapper>

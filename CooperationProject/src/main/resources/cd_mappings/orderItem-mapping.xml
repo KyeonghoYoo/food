@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cd_OrderItem">
+
+	<insert id="insertOrderItem" parameterType="hashmap">
+		insert into tboerderitem 
+		values(
+		CONCAT(#{orderId}, (SELECT LPAD(COUNT(*)+1,2,'0') 
+		FROM tboerderitem a
+		WHERE a.tbOrder_ID = #{orderId}
+	    and a.UpdateDate = date_format(now(), '%Y-%m-%d'))),
+		#{orderId},
+		#{id},
+		#{price1},
+		#{qty},
+		#{amount},
+		#{state},
+		#{updateDate},
+		#{memo},
+		#{remark1},
+		#{remark2})
+	</insert>
+
+	<select id="getOrderItemList" parameterType="String" resultType="cd_orderItem">
+		select distinct *
+		from tboerderitem
+		where tbOrder_id = #{orderId}
+	</select>
+	
+	<update id="updateOrderItemState" parameterType="hashmap">
+		update tboerderitem
+		SET State = #{orderItemState},
+			UpdateDate = #{updateDate}
+		where id = #{orderItemId}
+	</update>
+</mapper>

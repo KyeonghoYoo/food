@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cd_Deliverer">
+	<select id="getDeliverer" parameterType="hashmap" resultType="hashmap">
+		select distinct id, userid, bname
+		from tbdeliverer
+		where userid = #{userid} and userpw = #{userpw}
+	</select>
+</mapper> 

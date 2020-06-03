@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<!-- VO등록 -->
+	<typeAliases>
+		<!-- <typeAlias alias="sample" type="com.jh.biz.sample.SampleVO"></typeAlias> -->
+		<!-- 플랫폼 관리자 -->
+		<!-- 아이템 -->
+		<typeAlias type="com.jh.pm.item.PmItemVO" alias="itemVO" />
+		<!--  카테고리 -->
+		<typeAlias type="com.jh.pm.category.CategoryVO" alias="categoryVO" />
+		<typeAlias type="com.jh.pm.category.FirstCategoryVO" alias="firstCategory" />
+		<typeAlias type="com.jh.pm.category.SecondCategoryVO" alias="secondCategory" />
+		<typeAlias type="com.jh.pm.category.ThirdCategoryVO" alias="thirdCategory" />
+		<typeAlias type="com.jh.pm.ads.AdVO" alias="adVO"/>
+		<!-- 거래처-->
+		<typeAlias type="com.jh.pm.customer.PmCustomerVO" alias="pmCustomerVO" />
+		<!-- 거래처 아이템 -->
+		<typeAlias type="com.jh.pm.customeritem.PmCustomerItemVO" alias="pmCustomerItemVO" />
+		<!-- 거래처 아이템 / 아이템 -->
+		<typeAlias type="com.jh.pm.customeritem.PmCustomerItemVOJoinItemVO" alias="pmCustomerItemVOJoinItemVO" />
+		<!-- 주문 -->
+		<typeAlias type="com.jh.pm.order.PmOrderVO" alias="orderVO" />
+		<!-- 주문 아이템 -->		
+		<typeAlias type="com.jh.pm.orderitem.PmOrderItamVO" alias="orderItamVO"/>
+		<typeAlias type="com.jh.pm.orderitem.PmOrderItemJoinItemVO" alias="pmOrderItemJoinItemVO"/>
+		<!-- 직원 -->
+		<typeAlias type="com.jh.pm.member.PmMemberVO" alias="PmMemberVO"/>
+		<!-- 배송 -->
+		<typeAlias type="com.jh.pm.deliverer.DelivererVO" alias="delivererVO"/>
+		<!-- 매입처 -->
+        <typeAlias type="com.jh.pm.provider.PmProviderVO" alias="pmProviderVO"/>
+        <!-- 매입처 아이템 -->
+        <typeAlias type="com.jh.pm.provideritem.PmProviderItemVO" alias="pmProviderItemVO"/>
+        <typeAlias type="com.jh.pm.provideritem.PmProviderItemJoinItemVO" alias="pmProviderItemJoinItemVO"/>
+        <!-- 발주 -->
+		<typeAlias type="com.jh.pm.purchase.PmPurchaseVO" alias="pmPurchaseVO"/>
+		<!-- 발주 아이템 -->
+		<typeAlias type="com.jh.pm.purchaseitem.PmPurchaseItemVO" alias="pmPurchaseItemVO"/>
+		<typeAlias type="com.jh.pm.purchaseitem.PmPurchaseItemJoinItemVO" alias="pmPurchaseItemJoinItemVO"/>
+		<!-- 거래처 배송자 앱 -->
+		<typeAlias type="com.jh.service.customer.CustomerVO" alias="customer" />
+		<typeAlias type="com.jh.cd.service.customer.cd_CustomerVO" alias="cd_customer" />
+		<typeAlias type="com.jh.cd.service.order.cd_OrderVO" alias="cd_order" />
+		<typeAlias type="com.jh.cd.service.customeritem.cd_CustomerItemVO" alias="cd_customerItem" />
+		<typeAlias type="com.jh.cd.service.item.cd_ItemVO" alias="cd_item" />
+		<typeAlias type="com.jh.cd.service.orderitem.cd_OrderItemVO" alias="cd_orderItem"/>
+		<typeAlias type="com.jh.cd.service.customernotice.cd_CustomerNoticeVO" alias="cd_customerNotice"/>
+		<typeAlias type="com.jh.cd.service.adboard.cd_ADBoardVO" alias="cd_adBoard"/>
+		<typeAlias type="com.jh.cd.service.deliverernotice.cd_DelivererNoticeVO" alias="cd_delivererNotice"/>
+		<typeAlias type="com.jh.cd.service.deliverer.cd_DelivererVO" alias="cd_deliverer"/>
+	</typeAliases>
+
+	<!-- SQL Mapping XML파일을 등록 -->
+	<mappers>
+		<!-- <mapper resource="mappings/sample-mapper.xml"></mapper> -->
+		<!-- 플랫폼 관리자 -->
+		<mapper resource="mappings/customer-mapping.xml" />
+		<mapper resource="mappings/item-mapping.xml" />
+		<mapper resource="mappings/category-mapping.xml" />
+		<mapper resource="mappings/deliverer-mapping.xml" />
+		<mapper resource="mappings/order-mapping.xml" />
+		<mapper resource="mappings/customeritem-mapping.xml" />
+		<mapper resource="mappings/member-mapping.xml" />
+		<mapper resource="mappings/cuboarder-mapping.xml" />
+		<mapper resource="mappings/deboarder-mapping.xml" />
+		<mapper resource="mappings/ad-mapping.xml" />
+		<mapper resource="mappings/orderitem-mapping.xml" />
+		<mapper resource="mappings/provider-mapping.xml" />
+        <mapper resource="mappings/provideritem-mapping.xml"/>
+		<mapper resource="mappings/purchase-mapping.xml"/>
+		<mapper resource="mappings/purchaseitem-mapping.xml"/>
+		
+		<!-- 거래처 배송자 앱 -->
+		<mapper resource="cd_mappings/customer-mapping.xml" />
+		<mapper resource="cd_mappings/order-mapping.xml" />
+		<mapper resource="cd_mappings/customerItem-mapping.xml" />
+		<mapper resource="cd_mappings/item-mapping.xml"/>
+		<mapper resource="cd_mappings/orderItem-mapping.xml"/>
+		<mapper resource="cd_mappings/customerNotice-mapping.xml"/>
+		<mapper resource="cd_mappings/adBoard-mapping.xml"/>
+		<mapper resource="cd_mappings/delivererNotice-mapping.xml"/>
+		<mapper resource="cd_mappings/deliverer-mapping.xml"/>
+	</mappers>
+</configuration>

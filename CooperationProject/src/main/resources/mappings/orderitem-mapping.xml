@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PmOrderItamDAO">
+	<insert id="insertOrderItem" >
+	<selectKey resultType="String" keyProperty="id" order="BEFORE">
+		select concat("KRBS", LPAD(right( ifnull((
+					select max(o.id)
+					from tboerderitem o
+					where o.id like (select CONCAT(#{tbOrder_ID},'%'))),
+					(select CONCAT(#{tbOrder_ID}, "00"))
+					),18)+1, 18, '0')) as id
+	</selectKey>
+		INSERT INTO tboerderitem(
+			ID, tbOrder_ID, tbitem_ID,
+			Price, QTY, Amount, State,
+			UpdateDate, Memo, Remark1, Remark2
+		)VALUES(
+			#{id}, #{tbOrder_ID}, #{tbitem_ID},
+			#{price}, #{qty}, #{amount}, #{state},
+			now(), #{memo}, #{remark1}, #{remark2}
+		);
+	</insert>
+	<delete id="deleteOrderItem">
+		delete from tboerderitem where tbOrder_ID = #{value}
+	</delete>
+	
+	<select id="getPmOrderItamVOList" parameterType="String" resultType="orderItamVO" >
+		select * from tboerderitem where tbOrder_ID = #{value}
+	</select>
+	
+	<select id="getPmOrderItemJoinItem" parameterType="String" resultType="pmOrderItemJoinItemVO">
+		SELECT 
+		    tboerderitem.ID AS tborderitemID,
+		    tboerderitem.tbOrder_ID AS tborderitemTbOrder_ID,
+		    tboerderitem.tbitem_ID AS tborderitemtbitem_ID,
+		    tboerderitem.Price AS tborderitemPrice,
+		    tboerderitem.QTY AS tborderitemQTY,
+		    tboerderitem.Amount AS tborderitemAmount,
+		    tboerderitem.State AS tborderitemState,
+		    tboerderitem.UpdateDate AS tborderitemUpdateDate,
+		    tboerderitem.Memo AS tborderitemMemo,
+		    tboerderitem.Remark1 AS tborderitemRemark1,
+		    tboerderitem.Remark2 AS tborderitemRemark2,
+		    tbitem.ID AS tbitemID,
+		    tbitem.firstCategory_ID AS tbitemFirstCategory_ID,
+		    tbitem.secondCategory_ID AS tbitemSecondCategory_ID,
+		    tbitem.thirdCategory_ID AS tbitemThirdCategory_ID,
+		    tbitem.state AS tbitemState,
+		    tbitem.Scode AS tbitemScode,
+		    tbitem.ItemName AS tbitemItemName,
+		    tbitem.Manufacturer AS tbitemManufacturer,
+		    tbitem.Origin AS tbitemOrigin,
+		    tbitem.Spec AS tbitemSpec,
+		    tbitem.Unit AS tbitemUnit,
+		    tbitem.Price1 AS tbitemPrice1,
+		    tbitem.Price2 AS tbitemPrice2,
+		    tbitem.Price3 AS tbitemPrice3,
+		    tbitem.PurchasePrice AS tbitemPurchasePrice,
+		    tbitem.WarehouseID AS tbitemWarehouseID,
+		    tbitem.ItemQTY AS tbitemItemQTY,
+		    tbitem.MainProvier AS tbitemMainProvier,
+		    tbitem.MainProviderTel AS tbitemMainProviderTel,
+		    tbitem.Memo AS tbitemMemo,
+		    tbitem.Remark1 AS tbitemRemark1,
+		    tbitem.Remark2 AS tbitemRemark2
+		FROM
+		    tboerderitem,
+		    tbitem
+		WHERE
+		    tbitem.ID = tboerderitem.tbitem_ID
+		        AND tboerderitem.tbOrder_ID = #{value};
+	
+	</select>
+</mapper>

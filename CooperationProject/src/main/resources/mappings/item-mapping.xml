@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ItemDAO">
+
+	<insert id="insertItem" parameterType="itemVO">
+		<selectKey resultType="String" keyProperty="id"
+			order="BEFORE">
+			select IFNULL(concat("KRBS",(SELECT LPAD((select RIGHT ((SELECT max(id) FROM tbitem t), 6))+ 1, 6, "0"))),"KRBS000001")
+		</selectKey>
+		INSERT INTO tbitem(
+			ID,firstCategory_ID,secondCategory_ID,thirdCategory_ID,
+			state,Scode,ItemName,Manufacturer,Origin,Spec,Unit,
+			Price1,Price2,Price3,PurchasePrice,WarehouseID,
+			ItemQTY,MainProvier,MainProviderTel,Memo,
+			Remark1,Remark2)
+			VALUES(
+			#{id},#{firstCategory_ID},#{secondCategory_ID},#{thirdCategory_ID},
+			#{state},#{scode},#{itemName},#{manufacturer},#{origin},#{spec},#{unit},
+			#{price1},#{price2},#{price3},#{purchasePrice},#{warehouseID},
+			#{itemQTY},#{mainProvier},#{mainProviderTel},#{memo},
+			#{remark1},#{remark2}
+		);
+	</insert>
+
+	<select id="selectListItem" resultType="itemVO">
+		select * from tbitem
+			<trim prefix="WHERE" prefixOverrides="AND |OR ">
+				<!-- 1차 카테고리 -->
+				<if test="firstCategory_ID != 0">
+					AND firstCategory_ID = #{firstCategory_ID}
+				</if>
+				<!-- 2차 카테고리 -->
+				<if test="secondCategory_ID != 0">
+					AND secondCategory_ID = #{secondCategory_ID}
+				</if>
+				<!-- 3차 카테고리 -->
+				<if test="thirdCategory_ID != 0">
+					AND thirdCategory_ID = #{thirdCategory_ID}
+				</if>
+				<!-- 아이템 상태 -->
+				<if test="state!=null and !state.equals('')">
+					AND state = #{state}
+				</if>
+				<!-- 표준상품 코드 -->
+				<if test="scode!=null and !scode.equals('')">
+					AND scode = #{scode}
+				</if>
+				<!-- 상품명 -->
+				<if test="itemName!=null and !itemName.equals('')">
+					AND itemName LIKE CONCAT('%', #{itemName}, '%')
+				</if>
+				<!-- 제조사 -->
+				<if test="manufacturer!=null and !manufacturer.equals('')">
+					AND manufacturer = #{manufacturer}
+				</if>
+				<!-- 원산지 -->
+				<if test="origin!=null and !origin.equals('')">
+					AND origin = #{origin}
+				</if>
+				<!-- 판매규칙 -->
+				<if test="spec!=null and !spec.equals('')">
+					AND spec = #{spec}
+				</if>
+				<!-- 판매단위 -->
+				<if test="unit!=null and !unit.equals('')">
+					AND unit = #{unit}
+				</if>
+				<!-- 창고ID -->
+				<if test="warehouseID!=null and !warehouseID.equals('')">
+					AND warehouseID = #{warehouseID}
+				</if>
+				<!-- 주공급자 상호명 -->
+				<if test="mainProvier!=null and !mainProvier.equals('')">
+					AND mainProvier = #{mainProvier}
+				</if>
+				</trim>
+				<trim prefix="ORDER BY">
+					<if test="sort != null and !sort.equals('')">#{sort}</if>
+					<if test="orderBy == 'asc'"> asc </if>
+					<if test="orderBy == 'desc'"> desc </if>
+				</trim> 
+	</select>
+	
+	<select id="selectOneItem" resultType="itemVO" parameterType="String">
+		select * from tbitem where id= #{value}
+	</select>
+	
+	<delete id="deleteOneItem" parameterType="String">
+		delete from tbitem where id = #{value};
+	</delete>
+	
+	<update id ="updateOneItem">
+    UPDATE tbitem
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="firstCategory_ID != 0">firstCategory_ID=#{firstCategory_ID},</if>
+            <if test="secondCategory_ID != 0">seCondcategory_ID=#{secondCategory_ID},</if>
+            <if test="thirdCategory_ID != 0">thirdCategory_ID=#{thirdCategory_ID},</if>
+            <if test="state != null">state=#{state},</if>
+            <if test="scode != null">scode=#{scode},</if>
+            <if test="itemName != null">itemName=#{itemName},</if>
+            <if test="manufacturer != null">manufacturer=#{manufacturer},</if>
+            <if test="origin != null">origin=#{origin},</if>
+            <if test="spec != null">spec=#{spec},</if>
+            <if test="unit != null">unit=#{unit},</if>
+            <if test="price1 != 0">price1=#{price1},</if>
+            <if test="price2 != 0">price2=#{price2},</if>
+            <if test="price3 != 0">price3=#{price3},</if>
+            <if test="purchasePrice != 0">purchasePrice=#{purchasePrice},</if>
+            <if test="warehouseID != null">warehouseID=#{warehouseID},</if>
+            <if test="itemQTY != 0">itemQTY=#{itemQTY},</if>
+            <if test="mainProvier != null">mainProvier=#{mainProvier},</if>
+            <if test="mainProviderTel != null">mainProviderTel=#{mainProviderTel},</if>
+            <if test="memo != null">memo=#{memo},</if>
+            <if test="remark1 != null">remark1=#{remark1},</if>
+            <if test="remark2 != null">remark2=#{remark2},</if>
+        </trim>
+	    where id = #{id}
+	</update>
+	<update id="updateItemQTY">
+	update tbitem
+	set itemQTY = itemQTY + #{qty}
+	where id = #{tbitem_ID}
+	</update>
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AdDAO">
+	<insert id="insertAd" parameterType="adVO" keyProperty="adId" useGeneratedKeys="true">
+		<selectKey resultType="int" keyProperty="adID"
+			order="BEFORE">
+			select MAX(adID) + 1 from tbadboard
+		</selectKey>
+
+		INSERT INTO tbadboard(
+		<if test="adID!=null and !adID.equals('')">
+			Adcode, 
+		</if>
+		AdRegDate, AdUpdateDate,
+		AdStartDate, AdEndDate, AdTitle, AdImgURL,
+		AdMemo, AdRemark1
+		)
+		VALUES
+		(
+		<if test="adID!=null and !adID.equals('')">
+			#{adID}, 
+		</if>
+		#{adRegDate}, #{adUpdateDate},
+		#{adStartDate},
+		#{adEndDate}, #{adTitle}, #{adImgURL},
+		#{adMemo}, #{adRemark1}
+		);
+	</insert>
+	<select id="getAdList" resultType="adVO">
+		SELECT * FROM tbadboard;
+	</select>
+</mapper>

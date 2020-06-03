@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PmPurchaseDAO">
+
+	<!-- PM_CS_APP_17.4 발주 단일등록 Mybatis-->
+	<insert id="insertPurchase" parameterType="pmPurchaseVO">
+		<!-- PM_CS_APP_17.4.1 발주 코드 생성 -->
+		<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			select concat("KRBS", LPAD(right( ifnull((
+			select max(o.id)
+			from tbpurchase o
+			where o.id like (select CONCAT(#{tbProvider_ID},DATE_FORMAT(NOW(), '%m%d%Y'),'%'))),
+			(select CONCAT(#{tbProvider_ID},DATE_FORMAT(NOW(), '%m%d%Y'), "00"))
+			),16)+1, 16, '0')) as id
+		</selectKey>
+		<!-- PM_CS_APP_17.4.2 발주 단일 등록 SQL-->
+			INSERT INTO tbpurchase(
+				id, RegDate, Remark, tbProvider_ID, dday, state, bName
+			)VALUES(
+				#{id}, now(), #{remark}, #{tbProvider_ID}, #{dDay}, #{state}, #{bName}
+			);
+		</insert>
+	<!-- PM_CS_APP_18.4 주만 단일 수정 Mybatis -->
+	<update id ="updatePurchase" parameterType="pmPurchaseVO" >
+		<!-- PM_CS_APP_18.4.1 발주 단일 수정 SQL -->
+		UPDATE tbpurchase
+		    <trim prefix="SET" suffixOverrides=",">
+		        <if test="remark != null"> 		  Remark =  		#{remark},</if>
+		        <if test="tbProvider_ID != null"> tbProvider_ID =   #{tbProvider_ID},</if>
+		        <if test="dDay != null"> 		  dday =  			#{dDay},</if>
+		        <if test="state != null"> 		  state =  			#{state},</if>
+		        <if test="bName != null"> 		  bName = 			#{bName},</if>
+		    </trim>
+		WHERE ID = #{id};
+	</update>
+	
+	<!-- PM_CS_APP_20.4 발주 단일 삭제 Mybatis -->
+	<delete id="deletePurchase" parameterType="String">
+	<!-- PM_CS_APP_20.4 발주 단일 삭제 SQL -->
+		delete from tbpurchase where id = #{value};
+	</delete>
+	
+	<select id = "getPurchaseList" resultType="pmPurchaseVO">
+	    SELECT * FROM tbpurchase
+	    <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        <if test="id != null">                AND id LIKE CONCAT('%', #{id}, '%')</if>
+	        
+	        <if test="purchaseStartDate != null"> and dday &gt;= #{dDay}</if>
+	        <if test="purchaseEndDate != null">   and dday  &lt;= #{dDay}</if>
+	        <if test="reqStartDate != null">      and reqDate &gt;= #{reqStartDate}</if>
+	        <if test="reqEndDate != null">        and reqDate   &lt;= #{reqEndDate}</if>
+	     
+	        <if test="state != null">         	  and State      = #{state}</if>
+	        <if test="bName != null">    		  and bName = #{bName}</if>
+	        <if test="tbProvider_ID != null">     and tbProvider_ID     = #{tbProvider_ID}</if>
+	    </trim>
+	</select>
+	<select id = "getPurchase" resultType="pmPurchaseVO">
+	    SELECT * FROM tbpurchase where id = #{value}
+	    </select>
+    
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberDAO">
+	<insert id="insertMember">
+		<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			select IFNULL(concat("KRBS",(SELECT LPAD((select RIGHT ((SELECT max(id) FROM tbmember t), 6))+ 1, 6, "0"))),"KRBS000001")
+		</selectKey>
+		INSERT INTO tbmember(
+			ID, UserID, UserPW, Name, Role,
+			ItemAccess, CustomerAccess, ProviderAccess, DelivererAcces,
+			OrderAccess, PurchaseAccess, NoticeAccess, PaymentAccess,
+			Remark1, Remark2, Remark3, Remark4, Remark5, memo
+		)VALUES(
+			#{id}, #{userID}, #{userPW}, #{name}, #{role},
+			#{itemAccess}, #{customerAccess}, #{providerAccess}, #{delivererAcces},
+			#{orderAccess},#{purchaseAccess}, #{noticeAccess},#{paymentAccess},
+			#{remark1},#{remark2}, #{remark3}, #{remark4}, #{remark5}, #{memo}
+		)
+	</insert>
+	<update id="updateMember">
+		UPDATE tbmember
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="userID != null">        UserID         = #{userID},</if>
+			<if test="userPW != null">        UserPW         = #{userPW},</if>
+			<if test="name != null">          Name           = #{name},</if>
+			<if test="role != null">          Role           = #{role},</if>
+			<if test="itemAccess != null">    ItemAccess     = #{itemAccess},</if>
+			<if test="customerAccess != null">CustomerAccess = #{customerAccess},</if>
+			<if test="providerAccess != null">ProviderAccess = #{providerAccess},</if>
+			<if test="delivererAcces != null">DelivererAcces = #{delivererAcces},</if>
+			<if test="orderAccess != null">   OrderAccess    = #{orderAccess},</if>
+			<if test="purchaseAccess != null">PurchaseAccess = #{purchaseAccess},</if>
+			<if test="noticeAccess != null">  NoticeAccess   = #{noticeAccess},</if>
+			<if test="paymentAccess != null"> PaymentAccess  = #{paymentAccess},</if>
+			<if test="remark1 != null">       Remark1        = #{remark1},</if>
+			<if test="remark2 != null">       Remark2        = #{remark2},</if>
+			<if test="remark3 != null">       Remark3        = #{remark3},</if>
+			<if test="remark4 != null">       Remark4        = #{remark4},</if>
+			<if test="remark5 != null">       Remark5        = #{remark5},</if>
+			<if test="memo != null">          memo           = #{memo},</if>
+		</trim>
+		WHERE ID = #{id};
+	</update>
+	
+	<delete id="deleteMember">
+	 	DELETE FROM tbmember WHERE id = #{value};
+	</delete>
+	<select id="getMemberList" resultType="pmMemberVO">
+	SELECT * FROM tbmember;
+	</select>
+	
+	<select id="getMember" parameterType="String" resultType="pmMemberVO">
+		SELECT * FROM tbmember where id = #{value};
+	</select>	
+</mapper>

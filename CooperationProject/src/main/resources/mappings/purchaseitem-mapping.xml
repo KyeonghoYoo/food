@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PmPurchaseItemDAO">
+	<insert id="insertPurchaseItem" >
+	<selectKey resultType="String" keyProperty="id" order="BEFORE">
+		select concat("KRBS", LPAD(right( ifnull((
+					select max(o.id)
+					from tbpurchaseitem o
+					where o.id like (select CONCAT(#{tbPurchase_ID},'%'))),
+					(select CONCAT(#{tbPurchase_ID}, "00"))
+					),18)+1, 18, '0')) as id
+	</selectKey>
+		INSERT INTO tbpurchaseitem(
+			ID, PurchaseDate, tbitem_ID, tbProvider_ID, 
+			Price, QTY, Amount, State, UpdateDate,
+			Memo, Remark1, Remark2, tbPurchase_ID
+		)VALUES(
+			#{id}, #{purchaseDate}, #{tbItem_ID}, #{tbProvider_ID},
+			#{price}, #{qty}, #{amount}, #{state}, now(),
+			#{memo}, #{remark1}, #{remark2}, #{tbPurchase_ID}
+		);
+	</insert>
+		<!-- PM_CS_APP_18.4 주만 단일 수정 Mybatis -->
+	<update id ="updatePurchaseItem" parameterType="pmPurchaseItemVO" >
+		<!-- PM_CS_APP_18.4.1 발주 단일 수정 SQL -->
+		UPDATE tbPurchase
+		    <trim prefix="SET" suffixOverrides=",">
+		        <if test="tbitem_ID != null">     tbitem_ID =     #{tbitem_ID},</if>
+		        <if test="tbProvider_ID != null"> tbProvider_ID = #{tbProvider_ID},</if>
+		        <if test="Price != 0">            Price =         #{price},</if>
+		        <if test="QTY != 0">              QTY =           #{qty},</if>
+		        <if test="Amount != 0">           Amount =        #{amount},</if>
+		        <if test="state != null">     	  State =         #{state},</if>
+		        <if test="memo != null">      	  Memo =          #{memo},</if>
+		        <if test="remark1 != null">		  Remark1 = 	  #{remark1},</if>
+		        <if test="remark2 != null">   	  Remark2 =       #{remark2},</if>
+		        <if test="tbpurchase_id != null"> tbpurchase_id = #{tbpurchase_id},</if>
+		        UpdateDate = now(), 
+		    </trim>
+		WHERE ID = #{id};
+	</update>
+	
+	<delete id="deletePurchaseItem">
+		delete from tbpurchaseitem where tbPurchase_ID = #{value}
+	</delete>
+	
+	<select id="getPmPurchaseItemVOList" parameterType="String" resultType="pmPurchaseItemVO" >
+		select * from tbpurchaseitem where tbPurchase_ID = #{value}
+	</select>
+	
+	<select id="getPmPurchaseItemJoinItem" parameterType="String" resultType="pmPurchaseItemJoinItemVO">
+		SELECT 
+		    tbpurchaseitem.ID AS tbpurchaseitemID,
+		    tbpurchaseitem.tbpurchase_id AS tbpurchaseitemTbPurchase_ID,
+		    tbpurchaseitem.tbProvider_ID AS tbProvider_ID,
+		    tbpurchaseitem.PurchaseDate AS PurchaseDate,
+		    tbpurchaseitem.tbitem_ID AS tbpurchaseitemtbitem_ID,
+		    tbpurchaseitem.Price AS tbpurchaseitemPrice,
+		    tbpurchaseitem.QTY AS tbpurchaseitemQTY,
+		    tbpurchaseitem.Amount AS tbpurchaseitemAmount,
+		    tbpurchaseitem.State AS tbpurchaseitemState,
+		    tbpurchaseitem.UpdateDate AS tbpurchaseitemUpdateDate,
+		    tbpurchaseitem.Memo AS tbpurchaseitemMemo,
+		    tbpurchaseitem.Remark1 AS tbpurchaseitemRemark1,
+		    tbpurchaseitem.Remark2 AS tbpurchaseitemRemark2,
+		    tbitem.ID AS tbitemID,
+		    tbitem.firstCategory_ID AS tbitemFirstCategory_ID,
+		    tbitem.secondCategory_ID AS tbitemSecondCategory_ID,
+		    tbitem.thirdCategory_ID AS tbitemThirdCategory_ID,
+		    tbitem.state AS tbitemState,
+		    tbitem.Scode AS tbitemScode,
+		    tbitem.ItemName AS tbitemItemName,
+		    tbitem.Manufacturer AS tbitemManufacturer,
+		    tbitem.Origin AS tbitemOrigin,
+		    tbitem.Spec AS tbitemSpec,
+		    tbitem.Unit AS tbitemUnit,
+		    tbitem.Price1 AS tbitemPrice1,
+		    tbitem.Price2 AS tbitemPrice2,
+		    tbitem.Price3 AS tbitemPrice3,
+		    tbitem.PurchasePrice AS tbitemPurchasePrice,
+		    tbitem.WarehouseID AS tbitemWarehouseID,
+		    tbitem.ItemQTY AS tbitemItemQTY,
+		    tbitem.MainProvier AS tbitemMainProvier,
+		    tbitem.MainProviderTel AS tbitemMainProviderTel,
+		    tbitem.Memo AS tbitemMemo,
+		    tbitem.Remark1 AS tbitemRemark1,
+		    tbitem.Remark2 AS tbitemRemark2
+		FROM
+		    tbpurchaseitem,
+		    tbitem
+		WHERE
+		    tbitem.ID = tbpurchaseitem.tbitem_ID
+		        AND tbpurchaseitem.tbPurchase_ID = #{value};
+	
+	</select>
+</mapper>

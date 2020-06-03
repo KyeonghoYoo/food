@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CategoryDAO">
+
+	<insert id="insertfirstcategory" parameterType="categoryVO">
+		<selectKey resultType="int"
+			keyProperty="categoryID" order="BEFORE">
+			SELECT IFNULL((SELECT max(firstcategoryID)+1 FROM firstcategory),"1");
+		</selectKey>
+		INSERT INTO firstcategory(
+			firstcategoryCode,
+			firstcategoryName,
+			firstcategoryMemo, firstcategoryRemark, firstcategorySequence)
+		VALUES(
+			(select concat("KRBS",(select LPAD(#{categoryID}, 6,0)))), 
+			#{categoryName},
+			#{categoryMemo}, #{categoryRemark}, #{categoryID});
+	</insert>
+	<insert id="insertSecondCategory" parameterType="categoryVO">
+		<selectKey resultType="int"
+			keyProperty="categoryID" order="BEFORE">
+			SELECT IFNULL((SELECT max(secondCategoryID)+1 FROM secondcategory),"1");
+		</selectKey>
+		INSERT INTO secondcategory(
+			secondCategoryCode,
+			secondCategoryName,
+			secondCategoryMemo, secondCategoryRemark, secondCategorySequence, firstcategory_ID) 
+		VALUES(
+			(select concat("KRBS",(select LPAD(#{categoryID}, 6,0)))),
+			#{categoryName},
+			#{categoryMemo}, #{categoryRemark}, #{categoryID}, #{parentCategoryId});
+	</insert>
+	<insert id="insertThirdCategory" parameterType="categoryVO">
+		<selectKey resultType="int"
+			keyProperty="categoryID" order="BEFORE">
+			SELECT IFNULL((SELECT max(thirdCategoryID)+1 FROM thirdcategory),"1")
+		</selectKey>
+		INSERT INTO thirdcategory( thirdCategoryCode,
+			thirdCategoryName, 
+			thirdCategoryMemo, thirdCategoryRemark, thirdCategorySequence, secondcategory_ID) 
+		VALUES(
+			(select concat("KRBS",(select LPAD(#{categoryID}, 6,0)))),
+			#{categoryName},
+			#{categoryMemo}, #{categoryRemark}, #{categoryID}, #{parentCategoryId});
+	</insert>
+
+	<select id="getFirstCategory" parameterType="categoryVO" resultType="firstcategory">
+		SELECT * 
+		FROM firstcategory
+		
+		<!-- 삽입 유효성 검사 -->
+		<if test="parentCategoryId != null and categoriesLevel == 2">
+			where firstcategoryID = #{parentCategoryId}
+		</if>
+		
+		<!-- 수정 유효성 검사 -->
+		<if test="parentCategoryId == null and categoriesLevel == 1 and categorySequence == 0" >
+			where firstcategoryID = #{categoryID}
+		</if>
+		ORDER BY firstcategorySequence;
+	</select>
+	<select id="getSecondCategory" parameterType="categoryVO" resultType="secondCategory">
+		SELECT
+			secondCategoryID, secondCategoryCode, secondCategoryName,
+			secondCategoryMemo, secondCategoryRemark, secondCategorySequence,
+			firstcategory_ID as firstcategoryID
+		FROM secondcategory
+		
+		<!-- 삽입 유효성 검사 -->
+		<if test="parentCategoryId != null and categoriesLevel == 3">
+			where secondCategoryID = #{parentCategoryId}
+		</if>
+		
+		<!-- 특정 1차 카테고리와 관련된 2차 카테고리 조회  -->
+		<if test="parentCategoryId != null and categoriesLevel == 2">
+			where firstcategory_ID = #{parentCategoryId}
+		</if>
+		
+		<!-- 수정 유효성 검사 -->
+		<if test="parentCategoryId == null and categoriesLevel == 2">
+			where secondCategoryID = #{categoryID}
+		</if>
+		ORDER BY secondCategorySequence
+		;
+	</select>
+	<select id="getThirdCategory" parameterType="categoryVO" resultType="thirdCategory">
+		SELECT thirdCategoryID,
+			thirdCategoryCode, thirdCategoryName,
+			thirdCategoryMemo, thirdCategoryRemark, thirdCategorySequence,
+			secondcategory_ID as secondCategoryID
+		FROM thirdcategory
+		
+		<!-- 특정 2차 카테고리와 관련된 3차 카테고리 조회  -->
+		<if test="parentCategoryId != null and categoriesLevel == 3">
+			where secondcategory_ID = #{parentCategoryId}
+		</if>
+		
+		<!-- 수정 유효성 검사 -->
+		<if test="parentCategoryId == null and categoriesLevel == 3">
+			where thirdCategoryID = #{categoryID}
+		</if>
+		ORDER BY thirdCategorySequence
+		;
+	</select>
+
+
+	<update id="updatefirstcategory" parameterType="firstcategory">
+		UPDATE firstcategory
+		SET
+			firstcategoryName = #{categoryName},
+			firstcategoryMemo = #{categoryMemo},
+			firstcategoryRemark = #{categoryRemark}
+		WHERE 
+			firstcategoryID = #{categoryID};
+	</update>
+	<update id="updateSecondCategory" parameterType="secondCategory">
+		UPDATE secondcategory
+		SET
+			secondCategoryName = #{categoryName},
+			secondCategoryMemo = #{categoryMemo},
+			secondCategoryRemark = #{categoryRemark}
+		WHERE 
+			secondCategoryID = #{categoryID};
+	</update>
+	<update id="updateThirdCategory" parameterType="thirdCategory">
+		UPDATE thirdcategory
+		SET
+			thirdCategoryName = #{categoryName},
+			thirdCategoryMemo = #{categoryMemo},
+			thirdCategoryRemark = #{categoryRemark}
+		WHERE 
+			thirdCategoryID = #{categoryID};
+	</update>
+
+	<update id="updatefirstcategorySequence" parameterType="firstcategory">
+		UPDATE firstcategory
+		SET
+			firstcategorySequence = case
+			when firstcategorySequence =  #{categorySequence} + #{num} then #{categorySequence}
+			when firstcategoryCode = #{categoryCode} then #{categorySequence} + #{num}
+			else firstcategorySequence
+			end
+	</update>
+	<update id="updateSecondCategorySequence" parameterType="secondCategory">
+		UPDATE secondcategory
+		SET
+			secondCategorySequence = case
+			when secondCategorySequence =  #{categorySequence} + #{num} then #{categorySequence}
+			when secondcategoryCode = #{categoryCode} then #{categorySequence} + #{num}
+			else secondCategorySequence
+			end
+	</update>
+	<update id="updateThirdCategorySequence" parameterType="thirdCategory">
+		UPDATE thirdcategory
+		SET
+			thirdCategorySequence = case
+			when thirdCategorySequence =  #{categorySequence} + #{num} then #{categorySequence}
+			when thirdcategoryCode = #{categoryCode} then #{categorySequence} + #{num}
+			else thirdCategorySequence
+			end
+	</update>
+
+
+
+	<delete id="deletefirstcategory">
+		DELETE FROM firstcategory WHERE firstCategoryID = #{categoryID};
+	</delete>
+	<delete id="deleteSecondCategory">
+		DELETE FROM secondcategory WHERE secondCategoryID = #{categoryID};
+	</delete>
+	<delete id="deleteThirdCategory">
+		DELETE FROM thirdcategory WHERE thirdCategoryID = #{categoryID};
+	</delete>
+</mapper>

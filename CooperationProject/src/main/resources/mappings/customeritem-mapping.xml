@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CustomerItemDAO">
+	<insert id="insertCustomerItem" parameterType="pmCustomerItemVO">
+		<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			SELECT 
+			    CONCAT(#{tbCustomer_ID},
+			        (SELECT 
+			            LPAD(SUBSTRING((SELECT 
+			                IFNULL((SELECT 
+			                    MAX(id)
+			                FROM
+			                    tbcustomeritem a
+			                WHERE
+			                    id LIKE (SELECT CONCAT(#{tbCustomer_ID}, '%'))),
+			                #{tbCustomer_ID})
+			            ),
+			        11, 13) + (1), 2, '0'))) AS id
+		</selectKey>
+		INSERT INTO tbcustomeritem(
+			ID,      tbCustomer_ID, tbitem_ID,
+			RegDate, Memo,          Remark1,
+			Remark2
+		)VALUES (
+			#{id},      #{tbCustomer_ID}, #{tbItem_ID},
+			now(),      #{memo},          #{remark1},
+			#{remark2}
+		);
+	</insert>
+	<update id="updateCustomerItem" parameterType="pmCustomerItemVO">
+		UPDATE tbcustomeritem
+	    <trim prefix="SET" suffixOverrides=",">
+	        <if test="memo != null">Memo = #{memo},</if>
+			<if test="remark1 != null">Remark1 = #{remark1},</if>
+	        <if test="remark2 != null">Remark2 = #{remark2}</if>
+	    </trim>
+	    WHERE ID = #{id}
+	</update>
+	<delete id="deleteCustomerItem" parameterType="String">
+		delete from tbcustomeritem where id = #{value};
+	</delete>
+	<select id="getCustomerItems" resultType="pmCustomerItemVOJoinItemVO">
+		SELECT 
+			tbitem.ID as tbitemID,
+		    tbitem.firstCategory_ID as tbitemFirstCategory_ID,
+		    tbitem.secondCategory_ID as tbitemSecondCategory_ID,
+		    tbitem.thirdCategory_ID as tbitemThirdCategory_ID,
+		    tbitem.state as tbitemState,
+		    tbitem.Scode as tbitemScode,
+		    tbitem.ItemName as tbitemItemName,
+		    tbitem.Manufacturer as tbitemManufacturer,
+		    tbitem.Origin as tbitemOrigin,
+		    tbitem.Spec as tbitemSpec,
+		    tbitem.Unit as tbitemUnit,
+		    tbitem.Price1 as tbitemPrice1,
+		    tbitem.Price2 as tbitemPrice2,
+		    tbitem.Price3 as tbitemPrice3,
+		    tbitem.PurchasePrice as tbitemPurchasePrice,
+		    tbitem.WarehouseID as tbitemWarehouseID,
+		    tbitem.ItemQTY as tbitemItemQTY,
+		    tbitem.MainProvier as tbitemMainProvier,
+		    tbitem.MainProviderTel as tbitemMainProviderTel,
+		    tbitem.Memo as tbitemMemo,
+		    tbitem.Remark1 as tbitemRemark1,
+		    tbitem.Remark2 as tbitemRemark2,
+			tbcustomeritem.ID as tbcustomeritemID,
+		    tbcustomeritem.tbCustomer_ID as tbcustomeritemTbCustomer_ID,
+		    tbcustomeritem.tbitem_ID as tbcustomeritemtbitem_ID,
+		    tbcustomeritem.RegDate as tbcustomeritemRegDate,
+		    tbcustomeritem.Memo as tbcustomeritemMemo,
+		    tbcustomeritem.Remark1 as tbcustomeritemRemark1,
+		    tbcustomeritem.Remark2 as tbcustomeritemRemark2
+		FROM tbitem, tbcustomeritem
+		WHERE
+		    tbitem.id = tbcustomeritem.tbitem_ID
+		        AND tbcustomeritem.tbCustomer_ID = #{value};
+	</select>
+</mapper>

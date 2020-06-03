@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DelivererDAO">
+	<insert id="insertDeliverer">
+		<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			select IFNULL(concat("KRBS",(SELECT LPAD((select RIGHT ((SELECT max(id) FROM tbdeliverer t), 6))+ 1, 6, "0"))),"KRBS000001")
+		</selectKey>
+		INSERT INTO tbdeliverer(
+		ID, RegDate, UserID, UserPW,
+		BName, BNumber, BSector, Chief,
+		Manager, Tel, Fax, Email, Mobile,
+		PostNo, Address1, Address2, Address3,
+		Memo, Remark1, Remark2, salesman_id
+		)VALUES(
+		#{id}, now(), #{userID}, #{userPW},
+		#{bname}, #{bnumber}, #{bsector}, #{chief},
+		#{manager}, #{tel}, #{fax}, #{email}, #{mobile},
+		#{postNo}, #{address1}, #{address2}, #{address3},
+		#{memo}, #{remark1}, #{remark2}, #{salesman_id}
+		);
+	</insert>
+	<update id="updateDeliverer" parameterType="delivererVO">
+	    UPDATE tbdeliverer
+	        <trim prefix="SET" suffixOverrides=",">
+	            <if test="regDate != null">     RegDate     = #{regDate}, </if>
+	            <if test="userID != null">      UserID      = #{userID}, </if>
+	            <if test="userPW != null">      UserPW      = #{userPW}, </if>
+	            <if test="bname != null">       BName       = #{bname}, </if>
+	            <if test="bnumber != null">     BNumber     = #{bnumber}, </if>
+	            <if test="bsector != null">     BSector     = #{bsector}, </if>
+	            <if test="chief != null">       Chief       = #{chief}, </if>
+	            <if test="manager != null">     Manager     = #{manager}, </if>
+	            <if test="tel != null">         Tel         = #{tel}, </if>
+	            <if test="fax != null">         Fax         = #{fax}, </if>
+	            <if test="email != null">       Email       = #{email}, </if>
+	            <if test="mobile != null">      Mobile      = #{mobile}, </if>
+	            <if test="postNo != null">      PostNo      = #{postNo}, </if>
+	            <if test="address1 != null">    Address1    = #{address1}, </if>
+	            <if test="address2 != null">    Address2    = #{address2}, </if>
+	            <if test="address3 != null">    Address3    = #{address3}, </if>
+	            <if test="memo != null">        Memo        = #{memo}, </if>
+	            <if test="remark1 != null">     Remark1     = #{remark1}, </if>
+	            <if test="remark2 != null">     Remark2     = #{remark2}, </if>
+	            <if test="salesman_id != null"> salesman_id = #{salesman_id}, </if>
+	        </trim>
+	        WHERE ID = #{id};
+	</update>
+	<delete id="deleteDeliverer" parameterType="String">
+		DELETE FROM tbdeliverer WHERE id = #{value}
+	</delete>
+	<select id="getDeliverer" parameterType="String" resultType="delivererVO">
+		SELECT * FROM tbdeliverer where id = #{value};
+		
+	</select>
+	<select id="getDelivererList" resultType="delivererVO">
+		SELECT * FROM tbdeliverer
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+		    <if test="id != null">         and id          = #{id}</if>
+		    <if test="regDate != null">    and regDate     = #{regDate}</if>
+		    <if test="userID != null">     and userID      = #{userID}</if>
+		    <if test="userPW != null">     and userPW      = #{userPW}</if>
+		    <if test="bname != null">      and bname       = #{bname}</if>
+		    <if test="bnumber != null">    and bnumber     = #{bnumber}</if>
+		    <if test="bsector != null">    and bsector     = #{bsector}</if>
+		    <if test="chief != null">      and chief       = #{chief}</if>
+		    <if test="manager != null">    and manager     = #{manager}</if>
+		    <if test="tel != null">        and tel         = #{tel}</if>
+		    <if test="fax != null">        and fax         = #{fax}</if>
+		    <if test="email != null">      and email       = #{email}</if>
+		    <if test="mobile != null">     and mobile      = #{mobile}</if>
+		    <if test="postNo != null">     and postNo      = #{postNo}</if>
+		    <if test="address1 != null">   and address1    = #{address1}</if>
+		    <if test="address2 != null">   and address2    = #{address2}</if>
+		    <if test="address3 != null">   and address3    = #{address3}</if>
+		    <if test="memo != null">       and memo        = #{memo}</if>
+		    <if test="remark1 != null">    and remark1     = #{remark1}</if>
+		    <if test="remark2 != null">    and remark2     = #{remark2}</if>
+		    <if test="salesman_id != null">and salesman_id = #{salesman_id}</if>
+		</trim>
+	</select>
+
+
+</mapper>
+

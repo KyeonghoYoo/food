@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cd_CustomerItem">
+
+	<select id="getCustomerItemList" resultType="cd_item">
+		select distinct tbitem.*
+		from tbcustomeritem, tbcustomer, tbitem
+		where tbcustomeritem.tbcustomer_id = #{id} and tbcustomeritem.tbitem_id = tbitem.id
+	</select>
+	
+	<select id="getCustomerAddress" resultType="cd_customer">
+		select id, address1, address2, address3, bname, tbDeliverer_ID, Salesman_ID
+		from tbcustomer
+		where id = #{id}
+	</select>
+	
+	<insert id="insertCustomerItem" parameterType="cd_customerItem">
+		insert into tbcustomeritem (ID, tbCustomer_ID, tbItem_ID, RegDate) 
+		values(
+			(SELECT CONCAT(#{tbCustomer_ID}, (SELECT LPAD(MAX(substring((select IFNULL((select max(id) from tbcustomeritem a where id LIKE (select CONCAT(#{tbCustomer_ID}, "%"))), (select CONCAT(#{tbCustomer_ID}, "00")))), 11, 13)) + (1), 2, "0" ) from tbcustomeritem a ))),
+			#{tbCustomer_ID},
+			#{tbItem_ID},
+			now()
+		)
+	</insert>
+	
+	<delete id="deleteCustomerItem" parameterType="cd_customerItem">
+		delete from tbcustomeritem where tbItem_ID = #{tbItem_ID} and tbCustomer_ID = #{tbCustomer_ID}
+	</delete>
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OrderDAO">
+
+	<!-- PM_CS_APP_17.4 주문 단일등록 Mybatis-->
+	<insert id="insertOrder" parameterType="orderVO">
+		<!-- PM_CS_APP_17.4.1 주문 코드 생성 -->
+		<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			select concat("KRBS", LPAD(right( ifnull((
+			select max(o.id)
+			from tborder o
+			where o.id like (select CONCAT(#{tbCustomer_ID},DATE_FORMAT(NOW(), '%m%d%Y'),'%'))),
+			(select CONCAT(#{tbCustomer_ID},DATE_FORMAT(NOW(), '%m%d%Y'), "00"))
+			),16)+1, 16, '0')) as id
+		</selectKey>
+		<!-- PM_CS_APP_17.4.2 주문 단일 등록 SQL-->
+			INSERT INTO tborder(
+				ID,             tbCustomer_ID, OrderDate,  ItemCount, Amount,
+				Points,         Payment,       PayMethod,  ReqDate,   Requests,
+				tbDeliverer_ID, OrderState,    UpdateDate, Address1,  Address2,
+				Address3,       Memo,          Remark1,    Remark2,   SalesPersonID
+			)VALUES(
+				#{id},             #{tbCustomer_ID}, now(),        #{itemCount}, #{amount},
+				#{points},         #{payment},       #{payMethod}, #{reqDate},   #{requests},
+				#{tbDeliverer_ID}, "결재대기",         now(),        #{address1},  #{address2},
+				#{address3},       #{memo},          #{remark1},   #{remark2},   #{salesPersonID}
+			);
+		</insert>
+	<!-- PM_CS_APP_18.4 주만 단일 수정 Mybatis -->
+	<update id ="updateOrder" parameterType="orderVO" >
+		<!-- PM_CS_APP_18.4.1 주문 단일 수정 SQL -->
+		UPDATE tborder
+		    <trim prefix="SET" suffixOverrides=",">
+		        <if test="tbCustomer_ID != null"> tbCustomer_ID =  #{tbCustomer_ID},</if>
+		        <if test="orderDate != null">     OrderDate =      #{orderDate},</if>
+		        <if test="itemCount != 0">        ItemCount =      #{itemCount},</if>
+		        <if test="amount != 0">           Amount =         #{amount},</if>
+		        <if test="points != 0">           Points =         #{points},</if>
+		        <if test="payment != 0">          Payment =        #{payment},</if>
+		        <if test="payMethod != null">     PayMethod =      #{payMethod},</if>
+		        <if test="requests != null">      Requests =       #{requests},</if>
+		        <if test="tbDeliverer_ID != null">tbDeliverer_ID = #{tbDeliverer_ID},</if>
+		        <if test="orderState != null">    OrderState =     #{orderState},</if>
+		        <if test="memo != null">          Memo =           #{memo},</if>
+		        <if test="remark1 != null">       Remark1 =        #{remark1},</if>
+		        <if test="remark2 != null">       Remark2 =        #{remark2},</if>
+		        <if test="salesPersonID != null"> SalesPersonID =  #{salesPersonID},</if>
+		        UpdateDate = now(), 
+		    </trim>
+		WHERE ID = #{id};
+	</update>
+	
+	<!-- PM_CS_APP_20.4 주문 단일 삭제 Mybatis -->
+	<delete id="deleteOrder" parameterType="String">
+	<!-- PM_CS_APP_20.4 주문 단일 삭제 SQL -->
+		delete from tborder where id = #{value};
+	</delete>
+	
+	<select id = "getOrderList" resultType="orderVO">
+	    SELECT * FROM tborder
+	    <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        <if test="id != null">                AND id LIKE CONCAT('%', #{id}, '%')</if>
+	        
+	        <if test="orderStartDate != null">and orderDate &gt;= #{orderStartDate}</if>
+	        <if test="orderEndDate != null">      and orderDate  &lt;= #{orderEndDate}</if>
+	        <if test="reqStartDate != null">      and reqDate &gt;= #{reqStartDate}</if>
+	        <if test="reqEndDate != null">        and reqDate   &lt;= #{reqEndDate}</if>
+	        
+	        <if test="payMethod != null">         and payMethod      = #{payMethod}</if>
+	        <if test="tbDeliverer_ID != null">    and tbDeliverer_ID = #{tbDeliverer_ID}</if>
+	        <if test="orderState != null">        and orderState     = #{orderState}</if>
+	        <if test="salesPersonID != null">     and salesPersonID  = #{salesPersonID}</if>
+	    </trim>
+	</select>
+	<select id = "getOrder" resultType="orderVO">
+	    SELECT * FROM tborder where id = #{value}
+	    </select>
+    
+</mapper>

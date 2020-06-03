@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PmProviderItemDAO">
+	<insert id="insertProviderItem" >
+	<selectKey resultType="String" keyProperty="id" order="BEFORE">
+			SELECT 
+			    CONCAT(#{tbProvider_ID},
+			        (SELECT 
+			            LPAD(
+			            SUBSTRING(
+			            (SELECT 
+			                IFNULL(
+			                (SELECT MAX(id) FROM tbprovieritem a WHERE id LIKE (SELECT CONCAT(#{tbProvider_ID}, '%'))),
+			                #{tbProvider_ID})
+			            ), 10, 12) + (1), 2, '0')
+			        )
+			        ) AS id
+	</selectKey>
+		INSERT INTO tbprovieritem(
+			ID, tbitem_ID, tbProvider_ID, 
+			Price, Weight, UpdateDate, 
+			Memo, Remark1, Remark2
+		)VALUES(
+			#{id}, #{tbitem_ID}, #{tbProvider_ID},
+			#{price}, #{weight},now(),
+			#{memo}, #{remark1}, #{remark2}
+		);
+	</insert>
+	<delete id="deleteProviderItem">
+		delete from tbprovieritem where tbProvider_ID = #{value}
+	</delete>
+	<select id="getPmProviderItemVOList" parameterType="String" resultType="pmProviderItemVO">
+		select * from tbprovieritem where tbProvider_ID = #{value}
+	</select>
+	
+	<select id="getPmProviderItemJoinItem" parameterType="String" resultType="pmProviderItemJoinItemVO">
+		SELECT
+		tbprovieritem.ID as tbprovieritemID,
+		tbprovieritem.tbProvider_ID as tbprovieritemTbProvider_ID,
+		tbprovieritem.tbitem_ID as tbprovieritemtbitem_ID,
+		tbprovieritem.Price as tbprovieritemPrice,
+		tbprovieritem.Weight as tbprovieritemWeight,
+		tbprovieritem.UpdateDate as tbprovieritemUpdateDate,
+		tbprovieritem.Memo as tbprovieritemMemo,
+		tbprovieritem.Remark1 as tbprovieritemRemark1,
+		tbprovieritem.Remark2 as tbprovieritemRemark2,
+		tbitem.ID as tbitemID,
+		tbitem.firstCategory_ID as tbitemFirstCategory_ID,
+		tbitem.secondCategory_ID as tbitemSecondCategory_ID,
+		tbitem.thirdCategory_ID as tbitemThirdCategory_ID,
+		tbitem.state as tbitemState,
+		tbitem.Scode as tbitemScode,
+		tbitem.ItemName as tbitemItemName,
+		tbitem.Manufacturer as tbitemManufacturer,
+		tbitem.Origin as tbitemOrigin,
+		tbitem.Spec as tbitemSpec,
+		tbitem.Unit as tbitemUnit,
+		tbitem.Price1 as tbitemPrice1,
+		tbitem.Price2 as tbitemPrice2,
+		tbitem.Price3 as tbitemPrice3,
+		tbitem.PurchasePrice as tbitemPurchasePrice,
+		tbitem.WarehouseID as tbitemWarehouseID,
+		tbitem.ItemQTY as tbitemItemQTY,
+		tbitem.MainProvier as tbitemMainProvier,
+		tbitem.MainProviderTel as tbitemMainProviderTel,
+		tbitem.Memo as tbitemMemo,
+		tbitem.Remark1 as tbitemRemark1,
+		tbitem.Remark2 as tbitemRemark2
+		FROM tbprovieritem , tbitem
+		where tbitem.ID = tbprovieritem.tbitem_ID and tbprovieritem.tbProvider_ID =
+		#{value};
+	
+	</select>
+</mapper>

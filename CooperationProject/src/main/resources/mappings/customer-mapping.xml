@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.rog/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PmCustomerDAO">
+
+	<!-- CLASS_SELLING_PM_1.4 거래처 단일 삽입 mybatis -->
+	<insert id="insertPmCustomer" parameterType="pmCustomerVO">
+		<!-- CLASS_SELLING_PM_1.4.1 코드값 생성 -->
+		<selectKey keyProperty="id" resultType="String" order="BEFORE">
+			select IFNULL(concat("KRBS",(SELECT LPAD((select RIGHT ((SELECT max(id) FROM tbcustomer t), 6))+ 1, 6, "0"))),"KRBS000001")
+		</selectKey>
+		<!-- CLASS_SELLING_PM_1.4.2 insert sql 작성 -->
+		insert INTO tbcustomer (
+			    ID,       RegDate,        UserID,     UserPW,
+			    BName,    BNumber,        BSector,     Chief,
+			    Manager,  Tel,            Fax,         Email,
+			    Mobile,   PostNo,         Address1,    Address2,
+			    Address3, Location,       PriceRate,   CreditLimit,
+			    Points,   tbDeliverer_ID, Salesman_ID, Memo,
+			    Remark1,  Remark2
+			)VALUES(
+			    #{id},       now(),             #{tel},           #{userPW},
+			    #{bname},    #{bnumber},        #{bsector},       #{chief},
+			    #{manager},  #{tel},            #{fax},           #{email},
+			    #{mobile},   #{postNo},         #{address1},      #{address2},
+			    #{address3}, #{location},       #{priceRate},     #{creditLimit},
+			    #{points},   #{tbDeliverer_ID}, #{salesman_ID}, #{memo},
+			    #{remark1},  #{remark2}
+			);			
+	</insert>
+
+	<!-- CLASS_SELLING_PM_2.4 거래처 단일 수정 mybatis -->
+	<update id="updatePmCustomer" parameterType="pmCustomerVO">
+		<!-- CLASS_SELLING_PM_2.4.1 update sql 작성 -->
+	update tbcustomer
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="userPW != null">        userPW =         #{userPW},</if>
+		    <if test="bname != null">         bName =          #{bname},</if>
+			<if test="bnumber != null">       bNumber =        #{bnumber},</if>
+		    <if test="bsector != null">       bSector =        #{bsector},</if>
+		    <if test="chief != null">         chief =          #{chief},</if>
+			<if test="manager != null">       manager =        #{manager},</if>
+		    <if test="tel != null">           tel =            #{tel},</if>
+		    <if test="fax != null">           fax =            #{fax},</if>
+			<if test="email != null">         email =          #{email},</if>
+		    <if test="mobile != null">        mobile =         #{mobile},</if>
+		    <if test="postNo != null">        postNo =         #{postNo},</if>
+			<if test="address1 != null">      address1 =       #{address1},</if>
+		    <if test="address2 != null">      address2 =       #{address2},</if>
+		    <if test="address3 != null">      address3 =       #{address3},</if>
+			<if test="location != null">      location =       #{location},</if>
+		    <if test="priceRate != 0">        ipriceRate =     #{priceRate},</if>
+		    <if test="creditLimit != 0">      icreditLimit =   #{creditLimit},</if>
+			<if test="points != 0">           ipoints =        #{points},</if>
+		    <if test="tbDeliverer_ID != null">tbDeliverer_ID = #{tbDeliverer_ID},</if>
+		    <if test="salesman_ID != null">   salesman_ID =    #{salesman_ID},</if>
+			<if test="memo != null">          memo =           #{memo},</if>
+		    <if test="remark1 != null">       remark1 =        #{remark1},</if>
+		    <if test="remark2 != null">       remark2 =        #{remark2},</if>
+		</trim>
+		where id = #{id}
+	</update>
+	<!-- CLASS_SELLING_PM_6.4 거래처 단일 삭제 mybatis -->
+	<delete id="deletePmCustomer" parameterType="pmCustomerVO">
+		<!-- CLASS_SELLING_PM_6.4.1	 거래처 단일 삭제 delte sql 작성 -->
+		delete from tbcustomer 
+		where id = #{value};
+	</delete>
+	<!-- CLASS_SELLING_PM_8.4 거래처 정보 조회 Mybatis -->
+	<select id = "getPmCustomers" resultType="pmCustomerVO">
+		<!-- CLASS_SELLING_PM_8.4 거래처 정보 조회 sql -->
+		<!-- select
+		    tbcustomer.ID as id,             tbcustomer.RegDate as regDate,               tbcustomer.UserID as userID,           tbcustomer.UserPW as userPW,
+		    tbcustomer.BName as bName,       tbcustomer.BNumber as bNumber,               tbcustomer.BSector as bSector,         tbcustomer.Chief as chief,
+		    tbcustomer.Manager as manager,   tbcustomer.Tel as tel,                       tbcustomer.Fax as fax,                 tbcustomer.Email as email,
+		    tbcustomer.Mobile as mobile,     tbcustomer.PostNo as postNo,                 tbcustomer.Address1 as address1,       tbcustomer.Address2 as address2,
+		    tbcustomer.Address3 as address3, tbcustomer.Location as location,             tbcustomer.PriceRate as priceRate,     tbcustomer.CreditLimit as creditLimit,
+		    tbcustomer.Points as points,     tbcustomer.tbDeliverer_ID as tbDeliverer_ID, tbcustomer.Salesman_ID as salesman_ID, tbcustomer.Memo as memo,
+		    tbcustomer.Remark1 as remark1,   tbcustomer.Remark2 as remark2,               b.allCount as allCount
+		from 
+		    tbcustomer,
+		    (select tbOrder.tbcustomer_ID as id, sum(tbOrder.payment) as allCount from tbOrder group by tbOrder.tbcustomer_ID) as b
+		where 
+		    tbcustomer.id = b.id -->
+		    select * from tbcustomer
+		    <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="bsector != null">        AND tbcustomer.bSector =        #{bsector}</if>
+			<if test="tbDeliverer_ID != null"> AND tbcustomer.tbDeliverer_ID = #{tbDeliverer_ID}</if>
+			<if test="salesman_ID != null">    AND tbcustomer.salesman_ID =    #{salesman_ID}</if>
+			<if test="bname != null">          AND tbcustomer.bName =          LIKE CONCAT('%', #{bname}, '%')</if>
+			<if test="bnumber != null">        AND tbcustomer.bNumber =        LIKE CONCAT('%', #{bnumber}, '%')</if>
+			</trim>
+			<!-- 속성 별 정리하는 기 -->
+	</select>
+	<select id="getPmCustomer" resultType="pmCustomerVO">
+		select * from tbcustomer where id = #{value}
+	</select>
+</mapper>
