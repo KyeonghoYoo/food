@@ -1,5 +1,91 @@
-*.com
+HELP.md
+
+target/
+
+!.mvn/wrapper/maven-wrapper.jar
+
+!**/src/main/**
+
+!**/src/test/**
+
+
+### STS ###
+
+.apt_generated
+
+.classpath
+
+.factorypath
+
+.project
+.settings
+
+.springBeans
+
+.sts4-cache
+
+
+### IntelliJ IDEA ###
+
+.idea
+
+*.iws
+
+*.iml
+
+*.ipr
+
+
+### NetBeans ###
+
+/nbproject/private/
+
+/nbbuild/
+
+/dist/
+
+/nbdist/
+
+/.nb-gradle/
+
+build/
+
+
+### VS Code ###
+
+.vscode/
+
+
+# Compiled class file
 *.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+### Java-Web ###
+## ignoring target file
+target/
+
+
+*.com
 *.dll
 *.exe
 *.o
@@ -22,7 +108,6 @@
 *.zip
 *.jar
 
-*.log
 upload/
 logs/ 
 
@@ -55,19 +140,3 @@ local.properties
 .tern-project
 .springBeans
 .recommenders/
-CooperationProject/src/main/webapp/resources/static/js/vendor.97a4a527bf11f8d41455.js.map
-CooperationProject/src/main/webapp/resources/static/js/vendor.97a4a527bf11f8d41455.js
-CooperationProject/src/main/webapp/resources/static/js/app.ccdfce6a0a92cd24a0b9.js.map
-CooperationProject/src/main/webapp/resources/static/js/app.ccdfce6a0a92cd24a0b9.js
-CooperationProject/src/main/webapp/resources/static/js/app.876becbd926f9977c7ac.js.map
-CooperationProject/src/main/webapp/resources/static/js/app.876becbd926f9977c7ac.js
-CooperationProject/src/main/webapp/resources/static/js/app.836fece21b17b01378c8.js.map
-CooperationProject/src/main/webapp/resources/static/js/app.836fece21b17b01378c8.js
-CooperationProject/src/main/webapp/resources/static/img/logo2.4eec101.png
-CooperationProject/src/main/webapp/resources/static/css/app.8db7676b689b800ee670ea7a9e7d4d3f.css.map
-CooperationProject/src/main/webapp/resources/static/css/app.8db7676b689b800ee670ea7a9e7d4d3f.css
-CooperationProject/src/main/webapp/resources/static/css/app.51ca193654964a69ced3a55c06c7993a.css.map
-CooperationProject/src/main/webapp/resources/static/css/app.51ca193654964a69ced3a55c06c7993a.css
-CooperationProject/src/main/webapp/resources/static/css/app.1e6470aca31738a32c4280415957e177.css.map
-CooperationProject/src/main/webapp/resources/static/css/app.1e6470aca31738a32c4280415957e177.css
-CooperationProject/src/main/webapp/resources/static/BMHANNA_11yrs_ttf.ttf
